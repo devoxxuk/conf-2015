@@ -23,15 +23,12 @@ var TalksContainer = React.createClass({
 var Talks = React.createClass({
     render: function(){
       var talks = _.map(this.props.details, function(talk, idx){
-        var speakers = _.map(talk.speakers, function(speaker) {
-          return speaker.name;
-        });
         return (
           <tr key={'devoxx-talk-' + talk.name}>
             <td>{idx + 1}</td>
             <td>{talk.title}</td>
-            <td>{speakers.join(', ')}</td>
-            <td>{talk.talkType}</td>
+            <td>{talk.speakers.join(', ')}</td>
+            <td>{talk.type}</td>
             <td>{talk.track}</td>
             <td>{Math.round(talk.avg * 10)/10}</td>
             <td>{talk.count}</td>
