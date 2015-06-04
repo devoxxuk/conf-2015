@@ -23,15 +23,12 @@ var TalksContainer = React.createClass({displayName: "TalksContainer",
 var Talks = React.createClass({displayName: "Talks",
     render: function(){
       var talks = _.map(this.props.details, function(talk, idx){
-        var speakers = _.map(talk.speakers, function(speaker) {
-          return speaker.name;
-        });
         return (
           React.createElement("tr", {key: 'devoxx-talk-' + talk.name}, 
             React.createElement("td", null, idx + 1), 
             React.createElement("td", null, talk.title), 
-            React.createElement("td", null, speakers.join(', ')), 
-            React.createElement("td", null, talk.talkType), 
+            React.createElement("td", null, talk.speakers.join(', ')), 
+            React.createElement("td", null, talk.type), 
             React.createElement("td", null, talk.track), 
             React.createElement("td", null, Math.round(talk.avg * 10)/10), 
             React.createElement("td", null, talk.count)
