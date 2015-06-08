@@ -2,6 +2,7 @@ var TalksContainer = React.createClass({displayName: "TalksContainer",
     getInitialState: function() {
         return {
             loadingTalks: this.props.loadingTalks === "true" || false,
+            error: this.props.error || "",
             talks: []
         }
     },
@@ -10,10 +11,13 @@ var TalksContainer = React.createClass({displayName: "TalksContainer",
     },
     render: function() {
         var loadingTalks = this.state.loadingTalks ? React.createElement("div", {className: "alert alert-warning", id: "loading-talks-notification"}, "Loading talks...") : '';
-        var table = this.state.loadingTalks ? '' : React.createElement(Talks, {details: this.state.talks}) ;
+        var error = this.state.error === '' ? '' : React.createElement("div", {className: "alert alert-danger", id: "error-notification"}, this.state.error); 
+        var loaded = this.state.loadingTalks === false && this.state.error === '';
+        var table = loaded ? React.createElement(Talks, {details: this.state.talks}) : '';
         return (
           React.createElement("div", {key: "devoxx-top-talks-container"}, 
             loadingTalks, 
+            error, 
             table
           )
         );
@@ -25,7 +29,7 @@ var Talks = React.createClass({displayName: "Talks",
       var talks = _.map(this.props.details, function(talk, idx){
         return (
           React.createElement("tr", {key: 'devoxx-talk-' + talk.name}, 
-            React.createElement("td", null, idx + 1), 
+            React.createElement("td", null, parseInt(idx) + 1), 
             React.createElement("td", null, talk.title), 
             React.createElement("td", null, talk.speakers.join(', ')), 
             React.createElement("td", null, talk.type), 
@@ -66,5 +70,22 @@ var app = React.render(React.createElement(TalksContainer, {loadingTalks: "true"
         app.setProps({ loadingTalks: false, talks: data.talks});
     }
 
-    $.get(TOP_TALKS_URL).done(render);
+    function error(jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR);
+        app.setProps({ error: "Oops... (" + jqXHR.status + ") " + textStatus + ": " + errorThrown, loadingTalks: false })
+    }
+
+    function refresh(){
+        setTimeout(getTalks, 5000);
+    }
+
+    function getTalks(){
+        $.get(TOP_TALKS_URL).done(function(data){
+          render(data);
+          refresh();
+        }).fail(error);
+    };
+
+    getTalks();
+
 })();
