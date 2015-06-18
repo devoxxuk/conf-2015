@@ -13,19 +13,23 @@
         render: function() {
             var loadingTalks = this.state.loadingTalks ? <div className="alert alert-warning" id="loading-talks-notification">Loading talks...</div> : '';
             var error = this.state.error === '' ? '' : <div className="alert alert-danger" id="error-notification">{this.state.error}</div>;
-            var loaded = this.state.loadingTalks === false && this.state.error === '';
-            var table = loaded ? <Talks details={this.state.talks} key="devoxx-top-talks" /> : '';
+            var loaded = this.state.loadingTalks === false;
+            var table = loaded ? <Talks details={this.state.talks} error={this.state.error} key="devoxx-top-talks" /> : '';
             return (
               <div>
                 {loadingTalks}
                 {error}
                 {table}
+                <p className='text-center text-muted'><small>This page will reload the results automatically (and recover from network errors).</small></p>
               </div>
             );
         }
     });
 
     var Talks = React.createClass({
+        shouldComponentUpdate: function(nextProps){
+            return nextProps.error === '';
+        },
         render: function(){
           var talks = _.map(this.props.details, function(talk, idx){
             return <Talk rowNum={idx} details={talk} key={'devoxx-talk-' + talk.name} />;
@@ -85,7 +89,7 @@
     var TOP_TALKS_URL = 'http://api.vote.devoxx.co.uk/duk15/top/talks?limit=10';
 
     function render(data) {
-        app.setProps({ loadingTalks: false, talks: data.talks});
+        app.setProps({ loadingTalks: false, talks: data.talks, error: ''});
     }
 
     function error(jqXHR, textStatus, errorThrown) {
@@ -99,9 +103,12 @@
 
     function getTalks(){
         $.get(TOP_TALKS_URL).done(function(data){
-          render(data);
-          refresh();
-        }).fail(error);
+            render(data);
+            refresh();
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            error(jqXHR, textStatus, errorThrown);
+            refresh();
+        });
     };
 
     getTalks();

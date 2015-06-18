@@ -12,20 +12,24 @@
         },
         render: function() {
             var loadingTalks = this.state.loadingTalks ? React.createElement("div", {className: "alert alert-warning", id: "loading-talks-notification"}, "Loading talks...") : '';
-            var error = this.state.error === '' ? '' : React.createElement("div", {className: "alert alert-danger", id: "error-notification"}, this.state.error); 
-            var loaded = this.state.loadingTalks === false && this.state.error === '';
-            var table = loaded ? React.createElement(Talks, {details: this.state.talks, key: "devoxx-top-talks"}) : '';
+            var error = this.state.error === '' ? '' : React.createElement("div", {className: "alert alert-danger", id: "error-notification"}, this.state.error);
+            var loaded = this.state.loadingTalks === false;
+            var table = loaded ? React.createElement(Talks, {details: this.state.talks, error: this.state.error, key: "devoxx-top-talks"}) : '';
             return (
               React.createElement("div", null, 
                 loadingTalks, 
                 error, 
-                table
+                table, 
+                React.createElement("p", {className: "text-center text-muted"}, React.createElement("small", null, "This page will reload the results automatically (and recover from network errors)."))
               )
             );
         }
     });
 
     var Talks = React.createClass({displayName: "Talks",
+        shouldComponentUpdate: function(nextProps){
+            return nextProps.error === '';
+        },
         render: function(){
           var talks = _.map(this.props.details, function(talk, idx){
             return React.createElement(Talk, {rowNum: idx, details: talk, key: 'devoxx-talk-' + talk.name});
@@ -85,7 +89,7 @@
     var TOP_TALKS_URL = 'http://api.vote.devoxx.co.uk/duk15/top/talks?limit=10';
 
     function render(data) {
-        app.setProps({ loadingTalks: false, talks: data.talks});
+        app.setProps({ loadingTalks: false, talks: data.talks, error: ''});
     }
 
     function error(jqXHR, textStatus, errorThrown) {
@@ -99,9 +103,12 @@
 
     function getTalks(){
         $.get(TOP_TALKS_URL).done(function(data){
-          render(data);
-          refresh();
-        }).fail(error);
+            render(data);
+            refresh();
+        }).fail(function(jqXHR, textStatus, errorThrown) {
+            error(jqXHR, textStatus, errorThrown);
+            refresh();
+        });
     };
 
     getTalks();
