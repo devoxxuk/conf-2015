@@ -94,7 +94,7 @@
     }
 
     function refresh(){
-        setTimeout(getTalks, 10*1000);
+        setTimeout(getTalks, 60*1000);
     }
 
     function getTalks(){
