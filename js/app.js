@@ -102,7 +102,12 @@
     }
 
     function getTalks(){
-        $.get(TOP_TALKS_URL).done(function(data){
+        $.ajax({
+            url: TOP_TALKS_URL,
+            type: "GET",
+            timeout: 10*1000,
+            dataType: "json"
+        }).done(function(data){
             render(data);
             refresh();
         }).fail(function(jqXHR, textStatus, errorThrown) {
