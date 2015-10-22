@@ -1,4 +1,66 @@
 (function(){
+    var TOP_TALKS_URL = 'https://evening-mesa-4747.herokuapp.com/dbe15/top/talks?limit=10';
+
+    var TopTalks = React.createClass({
+        getInitialState: function(){
+            return {
+                title: this.props.title,
+                loadingTalks: true,
+                error: this.props.error || "",
+                talks: [],
+                url: this.props.url || TOP_TALKS_URL,
+                refreshInterval: parseInt(this.props.refreshInterval) || 60*1000
+            };
+        },
+        componentWillReceiveProps: function(nextProps) {
+            this.setState(nextProps);
+        },
+        render: function(){
+            return (
+                <div>
+                    <div className="page-header">
+                        <img src="img/devoxx_logo.gif" alt="Devoxx" />
+                        <h1>{this.state.title} Top Talks</h1>
+                    </div>
+                    <div className="talk-container">
+                        <TalksContainer loadingTalks={this.state.loadingTalks} talks={this.state.talks} error={this.state.error} />
+                    </div>
+                </div>
+            );
+        },
+        getTalks: function(){
+            var url = this.state.url,
+                refresh = this.refresh,
+                error = this.handleError,
+                render = this.handleSuccess;
+            $.ajax({
+                url: url,
+                type: "GET",
+                timeout: 10*1000,
+                dataType: "json"
+            }).done(function(data){
+                render(data);
+                refresh();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                error(jqXHR, textStatus, errorThrown);
+                refresh();
+            });
+        },
+        refresh: function(){
+            setTimeout(this.getTalks, this.state.refreshInterval);
+        },
+        handleSuccess: function(data){
+            this.setProps({ loadingTalks: false, talks: data.talks, error: ''});
+        },
+        handleError: function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR);
+            this.setProps({ error: "Oops... (" + jqXHR.status + ") " + textStatus + ": " + errorThrown, loadingTalks: false });
+        },
+        componentDidMount: function(){
+            this.getTalks();
+        }
+    });
+
     var TalksContainer = React.createClass({
         getInitialState: function() {
             return {
@@ -83,39 +145,6 @@
         }
     });
 
-
-    var app = React.render(<TalksContainer loadingTalks="true" key="devoxx-top-talks-container" />, document.getElementById('main'));
-
-    var TOP_TALKS_URL = 'https://evening-mesa-4747.herokuapp.com/dbe15/top/talks?limit=10';
-
-    function render(data) {
-        app.setProps({ loadingTalks: false, talks: data.talks, error: ''});
-    }
-
-    function error(jqXHR, textStatus, errorThrown) {
-        console.log(jqXHR);
-        app.setProps({ error: "Oops... (" + jqXHR.status + ") " + textStatus + ": " + errorThrown, loadingTalks: false })
-    }
-
-    function refresh(){
-        setTimeout(getTalks, 60*1000);
-    }
-
-    function getTalks(){
-        $.ajax({
-            url: TOP_TALKS_URL,
-            type: "GET",
-            timeout: 10*1000,
-            dataType: "json"
-        }).done(function(data){
-            render(data);
-            refresh();
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            error(jqXHR, textStatus, errorThrown);
-            refresh();
-        });
-    };
-
-    getTalks();
+    var app = React.render(<TopTalks key="devoxx-top-talks" title="BE 2015" url={TOP_TALKS_URL} />, document.getElementById('main'));
 
 })();
