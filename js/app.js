@@ -18,12 +18,12 @@
         },
         render: function(){
             return (
-                React.createElement("div", null, 
+                React.createElement("div", {className: "top-list-container"}, 
                     React.createElement("div", {className: "page-header"}, 
                         React.createElement("img", {src: "img/devoxx_logo.gif", alt: "Devoxx"}), 
                         React.createElement("h1", null, this.state.title, " Top Talks")
                     ), 
-                    React.createElement("div", {className: "talk-container"}, 
+                    React.createElement("div", {className: "talks-container"}, 
                         React.createElement(TalksContainer, {loadingTalks: this.state.loadingTalks, talks: this.state.talks, error: this.state.error})
                     )
                 )
@@ -83,7 +83,7 @@
                 loadingTalks, 
                 error, 
                 table, 
-                React.createElement("p", {className: "text-center text-muted"}, React.createElement("small", null, "This page will reload the results automatically (and recover from network errors)."))
+                React.createElement("p", {className: "text-center text-muted"}, React.createElement("small", null, "This table will frequently reload the results automatically (and recover from network errors)."))
               )
             );
         }

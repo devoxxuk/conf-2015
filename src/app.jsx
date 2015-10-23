@@ -18,12 +18,12 @@
         },
         render: function(){
             return (
-                <div>
+                <div className="top-list-container">
                     <div className="page-header">
                         <img src="img/devoxx_logo.gif" alt="Devoxx" />
                         <h1>{this.state.title} Top Talks</h1>
                     </div>
-                    <div className="talk-container">
+                    <div className="talks-container">
                         <TalksContainer loadingTalks={this.state.loadingTalks} talks={this.state.talks} error={this.state.error} />
                     </div>
                 </div>
@@ -83,7 +83,7 @@
                 {loadingTalks}
                 {error}
                 {table}
-                <p className='text-center text-muted'><small>This page will reload the results automatically (and recover from network errors).</small></p>
+                <p className='text-center text-muted'><small>This table will frequently reload the results automatically (and recover from network errors).</small></p>
               </div>
             );
         }
