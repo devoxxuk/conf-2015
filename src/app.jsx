@@ -176,12 +176,12 @@
 
     console.log("Here we go")
 
-    createTopTalksTable('devoxx-top-talks', 'BE 2015', TOP_TALKS_URL);
+    createTopTalksTable('devoxx-top-talks', '2015', TOP_TALKS_URL);
 
     _.forEach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], function(dow){
         createTopTalksTable(
             'devoxx-top-talks' + dow,
-            'BE 2015 ' + capitalizeFirstLetter(dow) + "'s",
+            '2015 ' + capitalizeFirstLetter(dow) + "'s",
             TOP_TALKS_URL + "&day=" + dow
         );
     });
@@ -196,7 +196,7 @@
             _.forEach(_.sortBy(data.tracks), function(track, idx){
                 createTopTalksTable(
                     'devoxx-top-talks-track-' + idx,
-                    "BE 2015 '" + track + "'",
+                    "2015 '" + track + "'",
                     TOP_TALKS_URL + "&track=" + encodeURIComponent(track)
                 );
             });
@@ -205,7 +205,7 @@
             _.forEach(_.sortBy(data.talkTypes), function(type, idx){
                 createTopTalksTable(
                     'devoxx-top-talks-type-' + idx,
-                    "BE 2015 '" + type + "'",
+                    "2015 '" + type + "'",
                     TOP_TALKS_URL + "&talkType=" + encodeURIComponent(type)
                 );
             });
