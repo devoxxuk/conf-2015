@@ -1,4 +1,67 @@
 (function(){
+    var TOP_TALKS_URL = 'https://api-voting.devoxx.com/DV15/top/talks?limit=10';
+    var CATEGORIES_URL = 'https://api-voting.devoxx.com/DV15/categories';
+
+    var TopTalks = React.createClass({displayName: "TopTalks",
+        getInitialState: function(){
+            return {
+                title: this.props.title,
+                loadingTalks: true,
+                error: this.props.error || "",
+                talks: [],
+                url: this.props.url || TOP_TALKS_URL,
+                refreshInterval: parseInt(this.props.refreshInterval) || 60*1000
+            };
+        },
+        componentWillReceiveProps: function(nextProps) {
+            this.setState(nextProps);
+        },
+        render: function(){
+            return (
+                React.createElement("div", {className: "top-list-container"}, 
+                    React.createElement("div", {className: "page-header"}, 
+                        React.createElement("img", {src: "img/devoxx_logo.gif", alt: "Devoxx"}), 
+                        React.createElement("h1", null, this.state.title, " Top Talks")
+                    ), 
+                    React.createElement("div", {className: "talks-container"}, 
+                        React.createElement(TalksContainer, {loadingTalks: this.state.loadingTalks, talks: this.state.talks, error: this.state.error})
+                    )
+                )
+            );
+        },
+        getTalks: function(){
+            var url = this.state.url,
+                refresh = this.refresh,
+                error = this.handleError,
+                render = this.handleSuccess;
+            $.ajax({
+                url: url,
+                type: "GET",
+                timeout: 10*1000,
+                dataType: "json"
+            }).done(function(data){
+                render(data);
+                refresh();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                error(jqXHR, textStatus, errorThrown);
+                refresh();
+            });
+        },
+        refresh: function(){
+            setTimeout(this.getTalks, this.state.refreshInterval);
+        },
+        handleSuccess: function(data){
+            this.setProps({ loadingTalks: false, talks: data.talks, error: ''});
+        },
+        handleError: function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR);
+            this.setProps({ error: "Oops... (" + jqXHR.status + ") " + textStatus + ": " + errorThrown, loadingTalks: false });
+        },
+        componentDidMount: function(){
+            this.getTalks();
+        }
+    });
+
     var TalksContainer = React.createClass({displayName: "TalksContainer",
         getInitialState: function() {
             return {
@@ -20,7 +83,7 @@
                 loadingTalks, 
                 error, 
                 table, 
-                React.createElement("p", {className: "text-center text-muted"}, React.createElement("small", null, "This page will reload the results automatically (and recover from network errors)."))
+                React.createElement("p", {className: "text-center text-muted"}, React.createElement("small", null, "This table will frequently reload the results automatically (and recover from network errors)."))
               )
             );
         }
@@ -34,6 +97,7 @@
           var talks = _.map(this.props.details, function(talk, idx){
             return React.createElement(Talk, {rowNum: idx, details: talk, key: 'devoxx-talk-' + talk.name});
           });
+          var tbody = _.isEmpty(talks) ? React.createElement(NoTalks, null) : talks;
           return (
             React.createElement("table", {className: "table table-striped"}, 
               React.createElement("thead", null, 
@@ -48,7 +112,7 @@
                 )
               ), 
               React.createElement("tbody", null, 
-                talks
+                tbody
               )
             )
           );
@@ -83,39 +147,71 @@
         }
     });
 
+    var NoTalks = React.createClass({displayName: "NoTalks",
+        render: function(){
+            return (
+                React.createElement("tr", {className: "warning"}, 
+                    React.createElement("td", {colSpan: "7", className: "text-center"}, "Sorry, there aren't any votes yet!")
+                )
+            );
+        }
+    });
 
-    var app = React.render(React.createElement(TalksContainer, {loadingTalks: "true", key: "devoxx-top-talks-container"}), document.getElementById('main'));
-
-    var TOP_TALKS_URL = 'https://api-voting.devoxx.com/dbe15/top/talks?limit=10';
-
-    function render(data) {
-        app.setProps({ loadingTalks: false, talks: data.talks, error: ''});
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
     }
 
-    function error(jqXHR, textStatus, errorThrown) {
-        console.log(jqXHR);
-        app.setProps({ error: "Oops... (" + jqXHR.status + ") " + textStatus + ": " + errorThrown, loadingTalks: false })
+    function createTopTalksTable(key, title, url) {
+        if (document.getElementById(key)) {
+            console.error("The key '" + key + "' is already in use");
+            return;
+        }
+        $("#main").append(
+            $("<div></div>", {
+                id: key
+            })
+        );
+        React.render(React.createElement(TopTalks, {key: key, title: title, url: url}), document.getElementById(key));
     }
 
-    function refresh(){
-        setTimeout(getTalks, 60*1000);
-    }
+    console.log("Here we go")
 
-    function getTalks(){
-        $.ajax({
-            url: TOP_TALKS_URL,
-            type: "GET",
-            timeout: 10*1000,
-            dataType: "json"
-        }).done(function(data){
-            render(data);
-            refresh();
-        }).fail(function(jqXHR, textStatus, errorThrown) {
-            error(jqXHR, textStatus, errorThrown);
-            refresh();
-        });
-    };
+    createTopTalksTable('devoxx-top-talks', 'BE 2015', TOP_TALKS_URL);
 
-    getTalks();
+    _.forEach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], function(dow){
+        createTopTalksTable(
+            'devoxx-top-talks' + dow,
+            'BE 2015 ' + capitalizeFirstLetter(dow) + "'s",
+            TOP_TALKS_URL + "&day=" + dow
+        );
+    });
+
+    $.ajax({
+        url: CATEGORIES_URL,
+        type: "GET",
+        timeout: 10*1000,
+        dataType: "json"
+    }).done(function(data){
+        if (data.tracks) {
+            _.forEach(_.sortBy(data.tracks), function(track, idx){
+                createTopTalksTable(
+                    'devoxx-top-talks-track-' + idx,
+                    "BE 2015 '" + track + "'",
+                    TOP_TALKS_URL + "&track=" + encodeURIComponent(track)
+                );
+            });
+        }
+        if (data.talkTypes) {
+            _.forEach(_.sortBy(data.talkTypes), function(type, idx){
+                createTopTalksTable(
+                    'devoxx-top-talks-type-' + idx,
+                    "BE 2015 '" + type + "'",
+                    TOP_TALKS_URL + "&talkType=" + encodeURIComponent(type)
+                );
+            });
+        }
+    }).fail(function(){
+        console.error("Retrieving categories failed!");
+    });
 
 })();
