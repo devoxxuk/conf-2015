@@ -1,5 +1,6 @@
 (function(){
-    var TOP_TALKS_URL = 'https://evening-mesa-4747.herokuapp.com/dbe15/top/talks?limit=10';
+    var TOP_TALKS_URL = 'https://api-voting.devoxx.com/DV15/top/talks?limit=10';
+    var CATEGORIES_URL = 'https://api-voting.devoxx.com/DV15/categories';
 
     var TopTalks = React.createClass({displayName: "TopTalks",
         getInitialState: function(){
@@ -96,6 +97,7 @@
           var talks = _.map(this.props.details, function(talk, idx){
             return React.createElement(Talk, {rowNum: idx, details: talk, key: 'devoxx-talk-' + talk.name});
           });
+          var tbody = _.isEmpty(talks) ? React.createElement(NoTalks, null) : talks;
           return (
             React.createElement("table", {className: "table table-striped"}, 
               React.createElement("thead", null, 
@@ -110,7 +112,7 @@
                 )
               ), 
               React.createElement("tbody", null, 
-                talks
+                tbody
               )
             )
           );
@@ -145,6 +147,71 @@
         }
     });
 
-    var app = React.render(React.createElement(TopTalks, {key: "devoxx-top-talks", title: "BE 2015", url: TOP_TALKS_URL}), document.getElementById('main'));
+    var NoTalks = React.createClass({displayName: "NoTalks",
+        render: function(){
+            return (
+                React.createElement("tr", {className: "warning"}, 
+                    React.createElement("td", {colSpan: "7", className: "text-center"}, "Sorry, there aren't any votes yet!")
+                )
+            );
+        }
+    });
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    function createTopTalksTable(key, title, url) {
+        if (document.getElementById(key)) {
+            console.error("The key '" + key + "' is already in use");
+            return;
+        }
+        $("#main").append(
+            $("<div></div>", {
+                id: key
+            })
+        );
+        React.render(React.createElement(TopTalks, {key: key, title: title, url: url}), document.getElementById(key));
+    }
+
+    console.log("Here we go")
+
+    createTopTalksTable('devoxx-top-talks', 'BE 2015', TOP_TALKS_URL);
+
+    _.forEach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], function(dow){
+        createTopTalksTable(
+            'devoxx-top-talks' + dow,
+            'BE 2015 ' + capitalizeFirstLetter(dow) + "'s",
+            TOP_TALKS_URL + "&day=" + dow
+        );
+    });
+
+    $.ajax({
+        url: CATEGORIES_URL,
+        type: "GET",
+        timeout: 10*1000,
+        dataType: "json"
+    }).done(function(data){
+        if (data.tracks) {
+            _.forEach(_.sortBy(data.tracks), function(track, idx){
+                createTopTalksTable(
+                    'devoxx-top-talks-track-' + idx,
+                    "BE 2015 '" + track + "'",
+                    TOP_TALKS_URL + "&track=" + encodeURIComponent(track)
+                );
+            });
+        }
+        if (data.talkTypes) {
+            _.forEach(_.sortBy(data.talkTypes), function(type, idx){
+                createTopTalksTable(
+                    'devoxx-top-talks-type-' + idx,
+                    "BE 2015 '" + type + "'",
+                    TOP_TALKS_URL + "&talkType=" + encodeURIComponent(type)
+                );
+            });
+        }
+    }).fail(function(){
+        console.error("Retrieving categories failed!");
+    });
 
 })();
