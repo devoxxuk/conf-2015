@@ -4,7 +4,7 @@ module.exports = function(grunt) {
         watch: {
             jsx: {
                 files: [
-                    'src/app.jsx'
+                    'src/'
                 ],
                 tasks: ['babel']
             }
