@@ -15,9 +15,16 @@ module.exports = function(grunt) {
                 presets: ['react']
             },
             jsx: {
-                files: {
-                    'src/app.jsx': 'js/app.js'
-                }
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'src/',
+                        src: ['**/*.jsx'],
+                        dest: 'js',
+                        ext: '.js',
+                        extDot: 'first'
+                    }
+                ]
             }
         }
     });
