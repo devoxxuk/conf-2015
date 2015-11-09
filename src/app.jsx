@@ -54,8 +54,8 @@
             this.setProps({ loadingTalks: false, talks: data.talks, error: ''});
         },
         handleError: function(jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR);
-            this.setProps({ error: "Oops... (" + jqXHR.status + ") " + textStatus + ": " + errorThrown, loadingTalks: false });
+            console.log(jqXHR, textStatus, errorThrown);
+            this.setProps({ error: "Oops... data is out-of-date! Retrying soon...", loadingTalks: false });
         },
         componentDidMount: function(){
             this.getTalks();
