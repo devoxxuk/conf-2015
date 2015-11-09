@@ -1,0 +1,16 @@
+{
+  "name": "devoxx-top-talks",
+  "version": "0.0.1",
+  "description": "Web Page to view Top Talks",
+  "dependencies": {
+    "babel-preset-react": "^6.1.2",
+    "babelify": "^7.2.0",
+    "browserify": "^12.0.1",
+    "react": "^0.14.2",
+    "react-dom": "^0.14.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devoxxuk/conf-2015.git"
+  }
+}
