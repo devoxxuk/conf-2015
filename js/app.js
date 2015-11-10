@@ -2,6 +2,68 @@
     var TOP_TALKS_URL = 'https://api-voting.devoxx.com/DV15/top/talks?limit=10';
     var CATEGORIES_URL = 'https://api-voting.devoxx.com/DV15/categories';
 
+    var Countdown = React.createClass({
+        getInitialState: function () {
+            var seconds = Math.max(0, this.props.seconds),
+                interval = Math.max(1, this.props.interval),
+                now = Date.now(),
+                endTime = now + seconds * 1000;
+
+            return {
+                endTime: endTime,
+                interval: interval,
+                output: this.genOutput(endTime)
+            };
+        },
+        render: function () {
+            return React.createElement(
+                'span',
+                null,
+                this.state.output
+            );
+        },
+        MINUTE: 60,
+        HOUR: 60 * 60,
+        DAY: 60 * 60 * 24,
+        YEAR: 60 * 60 * 24 * 365,
+        getUnits: function (int) {
+            if (int < this.MINUTE) return int === 1 ? "second" : "seconds";
+            if (int < this.HOUR) return int === this.MINUTE ? "minute" : "minutes";
+            if (int < this.DAY) return int === this.HOUR ? "hour" : "hours";
+            if (int < this.YEAR) return int === this.DAY ? "day" : "days";
+            return int === this.YEAR ? "year" : "years";
+        },
+        getRemaining: function (seconds) {
+            var unit = this.getUnits(seconds);
+            if (seconds < this.MINUTE) return seconds + " " + unit;
+            if (seconds < this.HOUR) return Math.round(seconds / this.MINUTE) + " " + unit;
+            if (seconds < this.DAY) return Math.round(seconds / this.HOUR) + " " + unit;
+            if (seconds < this.YEAR) return Math.round(seconds / this.DAY) + " " + unit;
+            return Math.round(seconds / this.YEAR) + " " + unit;
+        },
+        genOutput: function (endTime) {
+            var remainingSeconds = Math.round(Math.max(0, endTime - Date.now()) / 1000),
+                remaining = this.getRemaining(remainingSeconds);
+            return remaining;
+        },
+        setupRefresh: function () {
+            if (Date.now() < this.state.endTime) {
+                setTimeout(this.updateOutput, this.state.interval * 1000);
+            }
+        },
+        updateOutput: function () {
+            this.setState({
+                "output": this.genOutput(this.state.endTime, this.state.timeUnit)
+            });
+        },
+        componentDidMount: function () {
+            this.setupRefresh();
+        },
+        componentDidUpdate: function () {
+            this.setupRefresh();
+        }
+    });
+
     var TopTalks = React.createClass({
         getInitialState: function () {
             return {
@@ -34,7 +96,7 @@
                 React.createElement(
                     'div',
                     { className: 'talks-container' },
-                    React.createElement(TalksContainer, { loadingTalks: this.state.loadingTalks, talks: this.state.talks, error: this.state.error })
+                    React.createElement(TalksContainer, { loadingTalks: this.state.loadingTalks, talks: this.state.talks, error: this.state.error, refreshInterval: this.state.refreshInterval })
                 )
             );
         },
@@ -64,7 +126,7 @@
         },
         handleError: function (jqXHR, textStatus, errorThrown) {
             console.log(jqXHR, textStatus, errorThrown);
-            this.setProps({ error: "Oops... data is out-of-date! Retrying soon...", loadingTalks: false });
+            this.setProps({ error: "Oops... data is out-of-date!", loadingTalks: false });
         },
         componentDidMount: function () {
             this.getTalks();
@@ -76,7 +138,8 @@
             return {
                 loadingTalks: this.props.loadingTalks === "true" || false,
                 error: this.props.error || "",
-                talks: []
+                talks: [],
+                refreshInterval: Math.round(this.props.refreshInterval / 1000)
             };
         },
         componentWillReceiveProps: function (nextProps) {
@@ -88,10 +151,13 @@
                 { className: 'alert alert-warning', id: 'loading-talks-notification' },
                 'Loading talks...'
             ) : '';
+            var now = Date.now();
             var error = this.state.error === '' ? '' : React.createElement(
                 'div',
                 { className: 'alert alert-danger', id: 'error-notification' },
-                this.state.error
+                this.state.error,
+                ' Retrying in ',
+                React.createElement(Countdown, { interval: '1', seconds: this.state.refreshInterval, key: now })
             );
             var loaded = this.state.loadingTalks === false;
             var table = loaded ? React.createElement(Talks, { details: this.state.talks, error: this.state.error, key: 'devoxx-top-talks' }) : '';
