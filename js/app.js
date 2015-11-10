@@ -139,7 +139,7 @@
                 loadingTalks: this.props.loadingTalks === "true" || false,
                 error: this.props.error || "",
                 talks: [],
-                refreshInterval: Math.round(this.props.refreshInterval / 1000)
+                refreshInterval: this.props.refreshInterval
             };
         },
         componentWillReceiveProps: function (nextProps) {
@@ -157,7 +157,7 @@
                 { className: 'alert alert-danger', id: 'error-notification' },
                 this.state.error,
                 ' Retrying in ',
-                React.createElement(Countdown, { interval: '1', seconds: this.state.refreshInterval, key: now })
+                React.createElement(Countdown, { interval: '1', seconds: this.state.refreshInterval / 1000, key: now })
             );
             var loaded = this.state.loadingTalks === false;
             var table = loaded ? React.createElement(Talks, { details: this.state.talks, error: this.state.error, key: 'devoxx-top-talks' }) : '';

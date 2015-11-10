@@ -128,7 +128,7 @@
                 loadingTalks: this.props.loadingTalks === "true" || false,
                 error: this.props.error || "",
                 talks: [],
-                refreshInterval: Math.round(this.props.refreshInterval / 1000)
+                refreshInterval: this.props.refreshInterval
             }
         },
         componentWillReceiveProps: function(nextProps) {
@@ -138,7 +138,7 @@
             var loadingTalks = this.state.loadingTalks ? <div className="alert alert-warning" id="loading-talks-notification">Loading talks...</div> : '';
             var now = Date.now();
             var error = this.state.error === '' ? '' : (
-                <div className="alert alert-danger" id="error-notification">{this.state.error} Retrying in <Countdown interval="1" seconds={this.state.refreshInterval} key={now} /></div>
+                <div className="alert alert-danger" id="error-notification">{this.state.error} Retrying in <Countdown interval="1" seconds={this.state.refreshInterval/1000} key={now} /></div>
             );
             var loaded = this.state.loadingTalks === false;
             var table = loaded ? <Talks details={this.state.talks} error={this.state.error} key="devoxx-top-talks" /> : '';
