@@ -196,11 +196,12 @@
         },
         render: function(){
             var talk = this.state.details,
-                idx = this.state.rowNum;
+                idx = this.state.rowNum,
+                titleHtml = talk.youtubeURL ? <a href={talk.youtubeURL}>{talk.title}</a> : talk.title;
             return (
               <tr className={this.state.className}>
                 <td>{parseInt(idx) + 1}</td>
-                <td>{talk.title}</td>
+                <td>{titleHtml}</td>
                 <td>{talk.speakers.join(', ')}</td>
                 <td className="devoxx-talk-type">{talk.type}</td>
                 <td className="devoxx-track">{talk.track}</td>
@@ -237,8 +238,6 @@
         );
         React.render(<TopTalks key={key} title={title} url={url} />, document.getElementById(key));
     }
-
-    console.log("Here we go")
 
     createTopTalksTable('devoxx-top-talks', '2015', TOP_TALKS_URL);
 
