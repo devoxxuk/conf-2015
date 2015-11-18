@@ -3,8 +3,6 @@
     var CATEGORIES_URL = 'https://api-voting.devoxx.com/DV15/categories';
 
     var Countdown = React.createClass({
-        displayName: 'Countdown',
-
         getInitialState: function () {
             var seconds = Math.max(0, this.props.seconds),
                 interval = Math.max(1, this.props.interval),
@@ -67,8 +65,6 @@
     });
 
     var TopTalks = React.createClass({
-        displayName: 'TopTalks',
-
         getInitialState: function () {
             return {
                 title: this.props.title,
@@ -138,8 +134,6 @@
     });
 
     var TalksContainer = React.createClass({
-        displayName: 'TalksContainer',
-
         getInitialState: function () {
             return {
                 loadingTalks: this.props.loadingTalks === "true" || false,
@@ -187,8 +181,6 @@
     });
 
     var Talks = React.createClass({
-        displayName: 'Talks',
-
         shouldComponentUpdate: function (nextProps) {
             return nextProps.error === '';
         },
@@ -253,8 +245,6 @@
     });
 
     var Talk = React.createClass({
-        displayName: 'Talk',
-
         getInitialState: function () {
             return {
                 rowNum: this.props.rowNum,
@@ -268,7 +258,7 @@
         render: function () {
             var talk = this.state.details,
                 idx = this.state.rowNum,
-                titleHtml = talk.youtubeURL !== null ? React.createElement(
+                titleHtml = talk.youtubeURL !== null && talk.youtubeURL !== "" ? React.createElement(
                 'a',
                 { href: talk.youtubeURL },
                 talk.title
@@ -316,8 +306,6 @@
     });
 
     var NoTalks = React.createClass({
-        displayName: 'NoTalks',
-
         render: function () {
             return React.createElement(
                 'tr',

@@ -197,7 +197,7 @@
         render: function(){
             var talk = this.state.details,
                 idx = this.state.rowNum,
-                titleHtml = talk.youtubeURL ? <a href={talk.youtubeURL}>{talk.title}</a> : talk.title;
+                titleHtml = talk.youtubeURL !== null && talk.youtubeURL !== "" ? <a href={talk.youtubeURL}>{talk.title}</a> : talk.title;
             return (
               <tr className={this.state.className}>
                 <td>{parseInt(idx) + 1}</td>
