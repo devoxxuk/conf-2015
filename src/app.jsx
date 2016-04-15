@@ -1,6 +1,9 @@
 (function(){
-    var TOP_TALKS_URL = 'https://api-voting.devoxx.com/DV15/top/talks?limit=10';
-    var CATEGORIES_URL = 'https://api-voting.devoxx.com/DV15/categories';
+    var conference = (window.location.hash || 'DV15').replace(/#/, '');
+    var baseUrl = 'https://api-voting.devoxx.com/';
+    var TOP_TALKS_URL = baseUrl + conference + '/top/talks?limit=10';
+    var CATEGORIES_URL = baseUrl + conference + '/categories';
+
 
     var Countdown = React.createClass({
         getInitialState: function() {
@@ -159,7 +162,7 @@
         },
         render: function(){
           var talks = _.map(this.props.details, function(talk, idx){
-            return <Talk rowNum={idx} details={talk} key={'devoxx-talk-' + talk.name} />;
+            return <Talk rowNum={idx} details={talk} key={'devoxx-talk-' + talk.id} />;
           });
           var tbody = _.isEmpty(talks) ? <NoTalks /> : talks;
           return (
@@ -202,8 +205,8 @@
               <tr className={this.state.className}>
                 <td>{parseInt(idx) + 1}</td>
                 <td>{titleHtml}</td>
-                <td>{talk.speakers.join(', ')}</td>
-                <td className="devoxx-talk-type">{talk.type}</td>
+                <td>{talk.speakers.map(function(s) {return s.name}).join(', ')}</td>
+                <td className="devoxx-talk-type">{talk.talkType}</td>
                 <td className="devoxx-track">{talk.track}</td>
                 <td>{Math.round(talk.avg * 10)/10}</td>
                 <td className="devoxx-num-votes">{talk.count}</td>
@@ -239,12 +242,12 @@
         React.render(<TopTalks key={key} title={title} url={url} />, document.getElementById(key));
     }
 
-    createTopTalksTable('devoxx-top-talks', '2015', TOP_TALKS_URL);
+    createTopTalksTable('devoxx-top-talks', '', TOP_TALKS_URL);
 
     _.forEach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], function(dow){
         createTopTalksTable(
             'devoxx-top-talks' + dow,
-            '2015 ' + capitalizeFirstLetter(dow) + "'s",
+            ' ' + capitalizeFirstLetter(dow) + "'s",
             TOP_TALKS_URL + "&day=" + dow
         );
     });
