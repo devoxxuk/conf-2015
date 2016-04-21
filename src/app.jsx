@@ -262,7 +262,7 @@
             _.forEach(_.sortBy(data.tracks), function(track, idx){
                 createTopTalksTable(
                     'devoxx-top-talks-track-' + idx,
-                    "2015 '" + track + "'",
+                    "'" + track + "'",
                     TOP_TALKS_URL + "&track=" + encodeURIComponent(track)
                 );
             });
@@ -271,7 +271,7 @@
             _.forEach(_.sortBy(data.talkTypes), function(type, idx){
                 createTopTalksTable(
                     'devoxx-top-talks-type-' + idx,
-                    "2015 '" + type + "'",
+                    "'" + type + "'",
                     TOP_TALKS_URL + "&talkType=" + encodeURIComponent(type)
                 );
             });

@@ -352,12 +352,12 @@
     }).done(function (data) {
         if (data.tracks) {
             _.forEach(_.sortBy(data.tracks), function (track, idx) {
-                createTopTalksTable('devoxx-top-talks-track-' + idx, "2015 '" + track + "'", TOP_TALKS_URL + "&track=" + encodeURIComponent(track));
+                createTopTalksTable('devoxx-top-talks-track-' + idx, "'" + track + "'", TOP_TALKS_URL + "&track=" + encodeURIComponent(track));
             });
         }
         if (data.talkTypes) {
             _.forEach(_.sortBy(data.talkTypes), function (type, idx) {
-                createTopTalksTable('devoxx-top-talks-type-' + idx, "2015 '" + type + "'", TOP_TALKS_URL + "&talkType=" + encodeURIComponent(type));
+                createTopTalksTable('devoxx-top-talks-type-' + idx, "'" + type + "'", TOP_TALKS_URL + "&talkType=" + encodeURIComponent(type));
             });
         }
     }).fail(function () {
